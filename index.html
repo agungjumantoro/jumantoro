@@ -1,507 +1,377 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bulk UserID & Ticket Generator</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Rajdhani:wght@400;500;600&display=swap');
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pencatatan Auto</title>
 
-    :root {
-      --bg: #0a0e1a;
-      --panel: #111827;
-      --border: #1e3a5f;
-      --accent: #00c8ff;
-      --accent2: #0077ff;
-      --text: #e2eaf5;
-      --muted: #7a9ab8;
-      --green: #00ff99;
-      --red: #ff4060;
-    }
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Consolas,monospace;
+}
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+body{
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+padding:20px;
+background:url('https://i.postimg.cc/QdnzbX2b/panel-photo.png')
+center center/cover no-repeat fixed;
+}
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Rajdhani', sans-serif;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
+.container{
+width:100%;
+max-width:1200px;
+}
 
-    /* BG overlay */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background: 
-        radial-gradient(ellipse at 20% 30%, rgba(0,120,255,0.08) 0%, transparent 60%),
-        radial-gradient(ellipse at 80% 70%, rgba(0,200,255,0.06) 0%, transparent 55%);
-      pointer-events: none;
-      z-index: 0;
-    }
+.card{
+background:rgba(255,255,255,0.06);
+backdrop-filter:blur(4px);
+-webkit-backdrop-filter:blur(4px);
 
-    /* Grid lines */
-    body::after {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: 
-        linear-gradient(rgba(0,120,255,0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0,120,255,0.04) 1px, transparent 1px);
-      background-size: 40px 40px;
-      pointer-events: none;
-      z-index: 0;
-    }
+border:1px solid rgba(255,255,255,0.15);
+border-radius:24px;
 
-    .container {
-      position: relative;
-      z-index: 1;
-      max-width: 680px;
-      margin: 0 auto;
-      padding: 24px 16px 48px;
-    }
+box-shadow:0 8px 32px rgba(0,0,0,0.35);
+overflow:hidden;
+}
 
-    /* Header */
-    .header {
-      text-align: center;
-      margin-bottom: 28px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid var(--border);
-    }
+.header{
+background:rgba(107,114,128,0.85);
+backdrop-filter:blur(10px);
 
-    .brand {
-      font-family: 'Orbitron', monospace;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 4px;
-      color: var(--accent);
-      text-transform: uppercase;
-      margin-bottom: 8px;
-      opacity: 0.8;
-    }
+color:#fff;
+text-align:center;
+padding:18px;
+font-size:24px;
+font-weight:bold;
+}
 
-    .brand span {
-      color: var(--muted);
-    }
+.content{
+padding:20px;
+}
 
-    .title {
-      font-family: 'Orbitron', monospace;
-      font-size: clamp(18px, 4vw, 26px);
-      font-weight: 800;
-      color: var(--text);
-      letter-spacing: 1px;
-      line-height: 1.3;
-    }
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:15px;
+}
 
-    .title .highlight {
-      color: var(--accent);
-    }
+@media(max-width:768px){
+.grid{
+grid-template-columns:1fr;
+}
+}
 
-    /* Background switcher */
-    .bg-btn {
-      margin-top: 14px;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 14px;
-      background: rgba(0,120,255,0.1);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--muted);
-      font-family: 'Rajdhani', sans-serif;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .bg-btn:hover { background: rgba(0,200,255,0.15); color: var(--accent); border-color: var(--accent); }
+h3{
+color:#fff;
+margin-bottom:10px;
+}
 
-    /* Card */
-    .card {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px;
-      margin-bottom: 16px;
-      position: relative;
-      overflow: hidden;
-    }
+textarea{
+width:100%;
+height:320px;
+background:rgba(255,255,255,0.05);
 
-    .card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--accent2), var(--accent), transparent);
-      opacity: 0.6;
-    }
+backdrop-filter:blur(5px);
+-webkit-backdrop-filter:blur(5px);
 
-    .input-group {
-      margin-bottom: 18px;
-    }
+border:1px solid rgba(255,255,255,0.12);
+border-radius:14px;
 
-    .input-group:last-child { margin-bottom: 0; }
+color:#fff;
+padding:15px;
 
-    label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 8px;
-      font-family: 'Orbitron', monospace;
-    }
+resize:none;
+outline:none;
+}
 
-    textarea {
-      width: 100%;
-      background: rgba(0,0,0,0.3);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--text);
-      font-family: 'Rajdhani', sans-serif;
-      font-size: 14px;
-      font-weight: 500;
-      padding: 12px 14px;
-      resize: vertical;
-      min-height: 90px;
-      outline: none;
-      transition: border-color 0.2s;
-      line-height: 1.6;
-    }
+textarea::placeholder{
+color:rgba(255,255,255,0.55);
+}
 
-    textarea:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(0,200,255,0.08);
-    }
+textarea:focus{
+border-color:#9ca3af;
+}
 
-    textarea::placeholder { color: var(--muted); opacity: 0.5; }
+.buttons{
+margin-top:20px;
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+}
 
-    /* Buttons row */
-    .btn-row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 16px;
-    }
+button{
+border:none;
+border-radius:12px;
+padding:12px 20px;
+cursor:pointer;
+font-weight:bold;
+color:#fff;
+}
 
-    button {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-family: 'Rajdhani', sans-serif;
-      font-size: 14px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      cursor: pointer;
-      border: none;
-      transition: all 0.18s;
-    }
+.generate{
+background:#362312;
+}
 
-    .btn-generate {
-      background: linear-gradient(135deg, var(--accent2), var(--accent));
-      color: #000;
-      flex: 1;
-      justify-content: center;
-      font-size: 15px;
-    }
-    .btn-generate:hover { filter: brightness(1.15); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,200,255,0.3); }
-    .btn-generate:active { transform: translateY(0); }
+.copy{
+background:#795c32;
+}
 
-    .btn-copy {
-      background: rgba(0,255,153,0.12);
-      border: 1px solid rgba(0,255,153,0.3);
-      color: var(--green);
-    }
-    .btn-copy:hover { background: rgba(0,255,153,0.2); }
+.clear{
+background:#492000;
+}
 
-    .btn-delete {
-      background: rgba(255,64,96,0.1);
-      border: 1px solid rgba(255,64,96,0.25);
-      color: var(--red);
-    }
-    .btn-delete:hover { background: rgba(255,64,96,0.2); }
+.bg-btn{
+position:fixed;
+top:20px;
+right:20px;
 
-    /* Stats bar */
-    .stats-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 16px;
-      background: rgba(0,0,0,0.25);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      margin-bottom: 12px;
-      font-size: 13px;
-    }
+background:rgba(107,114,128,0.9);
 
-    .stats-bar .count {
-      font-family: 'Orbitron', monospace;
-      font-size: 12px;
-      color: var(--accent);
-    }
+color:#fff;
+border:none;
+border-radius:12px;
 
-    .stats-bar .count span {
-      font-size: 20px;
-      font-weight: 800;
-      margin-left: 6px;
-    }
+padding:12px 18px;
+cursor:pointer;
 
-    .format-badge {
-      font-size: 11px;
-      color: var(--muted);
-      background: rgba(255,255,255,0.04);
-      padding: 3px 10px;
-      border-radius: 4px;
-      font-family: monospace;
-      letter-spacing: 0.5px;
-    }
+backdrop-filter:blur(10px);
+}
 
-    /* Output */
-    #output {
-      width: 100%;
-      background: rgba(0,0,0,0.4);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--green);
-      font-family: 'Courier New', monospace;
-      font-size: 13px;
-      padding: 14px;
-      resize: vertical;
-      min-height: 160px;
-      outline: none;
-      line-height: 1.8;
-    }
+.counter{
+margin-top:15px;
+color:#fff;
+}
 
-    #output:focus { border-color: var(--accent); }
+.output{
+margin-top:15px;
 
-    /* Toast */
-    .toast {
-      position: fixed;
-      bottom: 28px;
-      right: 24px;
-      background: var(--green);
-      color: #000;
-      font-family: 'Rajdhani', sans-serif;
-      font-weight: 700;
-      font-size: 14px;
-      padding: 10px 20px;
-      border-radius: 8px;
-      transform: translateY(80px);
-      opacity: 0;
-      transition: all 0.3s ease;
-      z-index: 999;
-    }
+background:rgba(255,255,255,0.05);
 
-    .toast.show {
-      transform: translateY(0);
-      opacity: 1;
-    }
+backdrop-filter:blur(5px);
+-webkit-backdrop-filter:blur(5px);
 
-    /* Footer */
-    .footer {
-      text-align: center;
-      margin-top: 28px;
-      color: var(--muted);
-      font-size: 12px;
-      opacity: 0.5;
-      letter-spacing: 1px;
-    }
+border:1px solid rgba(255,255,255,0.10);
 
-    /* Background picker modal */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.7);
-      z-index: 100;
-      align-items: center;
-      justify-content: center;
-    }
+border-radius:14px;
+padding:15px;
 
-    .modal-overlay.open { display: flex; }
+min-height:250px;
 
-    .modal {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px;
-      width: min(420px, 90vw);
-    }
+color:#f3f4f6;
+white-space:pre-wrap;
+overflow:auto;
+}
 
-    .modal h3 {
-      font-family: 'Orbitron', monospace;
-      font-size: 13px;
-      color: var(--accent);
-      letter-spacing: 2px;
-      margin-bottom: 16px;
-    }
+.footer{
+margin-top:15px;
+text-align:center;
+color:rgba(255,255,255,0.75);
+}
 
-    .bg-options {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 16px;
-    }
+.toast{
+position:fixed;
+bottom:20px;
+right:20px;
 
-    .bg-option {
-      height: 60px;
-      border-radius: 8px;
-      cursor: pointer;
-      border: 2px solid transparent;
-      transition: border-color 0.2s;
-    }
-    .bg-option:hover, .bg-option.active { border-color: var(--accent); }
+background:#292929;
+color:#fff;
 
-    .modal-close {
-      width: 100%;
-      padding: 10px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--muted);
-      font-family: 'Rajdhani', sans-serif;
-      font-size: 14px;
-      cursor: pointer;
-    }
-    .modal-close:hover { background: rgba(255,255,255,0.1); color: var(--text); }
-  </style>
+padding:12px 20px;
+border-radius:12px;
+
+z-index:9999;
+
+animation:fade .3s ease;
+}
+
+@keyframes fade{
+from{
+opacity:0;
+transform:translateY(10px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
+</style>
 </head>
 <body>
 
+<input type="file" id="bgUpload" accept="image/*" hidden>
+
+<button class="bg-btn"
+onclick="document.getElementById('bgUpload').click()">
+📷 Ganti Background
+</button>
+
 <div class="container">
-  <!-- Header -->
-  <div class="header">
-    <div class="brand">⚡ <span>by</span> jumantoro</div>
-    <div class="title">Bulk <span class="highlight">UserID</span> &amp; Ticket <span class="highlight">Generator</span></div>
-    <button class="bg-btn" onclick="document.getElementById('bgModal').classList.add('open')">
-      📷 Ganti Background
-    </button>
-  </div>
+<div class="card">
 
-  <!-- Input Card -->
-  <div class="card">
-    <div class="input-group">
-      <label>User ID</label>
-      <textarea id="userids" placeholder="Masukkan User ID&#10;(satu per baris atau pisahkan dengan koma)"></textarea>
-    </div>
-    <div class="input-group">
-      <label>Kode Tiket</label>
-      <textarea id="tickets" placeholder="Masukkan Kode Tiket&#10;(satu per baris atau pisahkan dengan koma)"></textarea>
-    </div>
-  </div>
-
-  <!-- Buttons -->
-  <div class="btn-row">
-    <button class="btn-generate" onclick="generate()">⚡ Generate</button>
-    <button class="btn-copy" onclick="copyResult()">📋 Copy Hasil</button>
-    <button class="btn-delete" onclick="clearAll()">🗑 Hapus Semua</button>
-  </div>
-
-  <!-- Stats -->
-  <div class="stats-bar">
-    <div class="count">Total Data : <span id="totalCount">0</span></div>
-    <div class="format-badge">userid, kode_tiket</div>
-  </div>
-
-  <!-- Output Card -->
-  <div class="card">
-    <label>Output</label>
-    <textarea id="output" readonly placeholder="Hasil generate akan muncul di sini..."></textarea>
-  </div>
-
-  <div class="footer">jumantoro · Bulk Generator Tool</div>
+<div class="header">
+Pencatatan Auto
 </div>
 
-<!-- Toast -->
-<div class="toast" id="toast">✅ Berhasil disalin!</div>
+<div class="content">
 
-<!-- BG Modal -->
-<div class="modal-overlay" id="bgModal">
-  <div class="modal">
-    <h3>🎨 Pilih Background</h3>
-    <div class="bg-options">
-      <div class="bg-option active" style="background: linear-gradient(135deg, #0a0e1a, #111827)" onclick="setBg(0, this)"></div>
-      <div class="bg-option" style="background: linear-gradient(135deg, #0d1b2a, #1b2838)" onclick="setBg(1, this)"></div>
-      <div class="bg-option" style="background: linear-gradient(135deg, #1a0a2e, #16213e)" onclick="setBg(2, this)"></div>
-      <div class="bg-option" style="background: linear-gradient(135deg, #0f2017, #0a1f12)" onclick="setBg(3, this)"></div>
-      <div class="bg-option" style="background: linear-gradient(135deg, #1a1a0a, #2a2010)" onclick="setBg(4, this)"></div>
-      <div class="bg-option" style="background: linear-gradient(135deg, #1a0a0a, #2a1010)" onclick="setBg(5, this)"></div>
-    </div>
-    <button class="modal-close" onclick="document.getElementById('bgModal').classList.remove('open')">Tutup</button>
-  </div>
+<div class="grid">
+
+<div>
+<h3>User ID</h3>
+<textarea id="userid"
+placeholder="Masukkan 1 User ID per baris"></textarea>
+</div>
+
+<div>
+<h3>Kode Tiket</h3>
+<textarea id="txid"
+placeholder="Masukkan 1 Kode Tiket per baris"></textarea>
+</div>
+
+</div>
+
+<div class="buttons">
+
+<button class="generate"
+onclick="generateData()">
+⚡ Generate
+</button>
+
+<button class="copy"
+id="copyBtn"
+onclick="copyResult()">
+📋 Copy Hasil
+</button>
+
+<button class="clear"
+onclick="clearAll()">
+🗑 Hapus Semua
+</button>
+
+</div>
+
+<div class="counter" id="counter">
+Total Data : 0
+</div>
+
+<div class="output" id="hasil"></div>
+
+<div class="footer">
+Format Output : userid, kode_tiket
+</div>
+
+</div>
+</div>
 </div>
 
 <script>
-  const bgThemes = [
-    { bg: '#0a0e1a', panel: '#111827', accent: '#00c8ff', accent2: '#0077ff' },
-    { bg: '#0d1b2a', panel: '#1b2838', accent: '#4fc3f7', accent2: '#0288d1' },
-    { bg: '#1a0a2e', panel: '#16213e', accent: '#b39ddb', accent2: '#7c4dff' },
-    { bg: '#0a1f12', panel: '#0f2017', accent: '#00e676', accent2: '#00c853' },
-    { bg: '#1a1a0a', panel: '#2a2010', accent: '#ffd54f', accent2: '#ff8f00' },
-    { bg: '#1a0a0a', panel: '#2a1010', accent: '#ff6090', accent2: '#e91e63' },
-  ];
 
-  function setBg(idx, el) {
-    const t = bgThemes[idx];
-    document.documentElement.style.setProperty('--bg', t.bg);
-    document.documentElement.style.setProperty('--panel', t.panel);
-    document.documentElement.style.setProperty('--accent', t.accent);
-    document.documentElement.style.setProperty('--accent2', t.accent2);
-    document.querySelectorAll('.bg-option').forEach(e => e.classList.remove('active'));
-    el.classList.add('active');
-  }
+function generateData(){
 
-  function parseLines(val) {
-    return val.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
-  }
+let users = document.getElementById('userid')
+.value.split('\n')
+.map(x => x.trim())
+.filter(x => x !== '');
 
-  function generate() {
-    const ids = parseLines(document.getElementById('userids').value);
-    const tks = parseLines(document.getElementById('tickets').value);
+let txids = document.getElementById('txid')
+.value.split('\n')
+.map(x => x.trim())
+.filter(x => x !== '');
 
-    if (!ids.length || !tks.length) {
-      showToast('⚠️ Isi User ID dan Kode Tiket!', '#ff4060');
-      return;
-    }
+if(users.length !== txids.length){
+showToast('Jumlah User ID dan Kode Tiket harus sama');
+return;
+}
 
-    const results = [];
-    const len = Math.max(ids.length, tks.length);
-    for (let i = 0; i < len; i++) {
-      const id = ids[i % ids.length];
-      const tk = tks[i % tks.length];
-      results.push(`${id}, ${tk}`);
-    }
+let hasil = [];
 
-    document.getElementById('output').value = results.join('\n');
-    document.getElementById('totalCount').textContent = results.length;
-    showToast(`✅ ${results.length} data berhasil di-generate!`, 'var(--green)');
-  }
+for(let i=0;i<users.length;i++){
+hasil.push(users[i] + ', ' + txids[i]);
+}
 
-  function copyResult() {
-    const out = document.getElementById('output');
-    if (!out.value.trim()) { showToast('⚠️ Tidak ada data!', '#ff4060'); return; }
-    navigator.clipboard.writeText(out.value).then(() => showToast('📋 Berhasil disalin!'));
-  }
+document.getElementById('hasil').textContent =
+hasil.join('\n');
 
-  function clearAll() {
-    document.getElementById('userids').value = '';
-    document.getElementById('tickets').value = '';
-    document.getElementById('output').value = '';
-    document.getElementById('totalCount').textContent = '0';
-    showToast('🗑 Data dihapus', '#7a9ab8');
-  }
+document.getElementById('counter').textContent =
+'Total Data : ' + hasil.length;
 
-  function showToast(msg, color) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    if (color) t.style.background = color === 'var(--green)' ? '#00ff99' : color;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2200);
-  }
+showToast('✅ Data berhasil dibuat');
+}
+
+async function copyResult(){
+
+const text =
+document.getElementById('hasil').textContent;
+
+if(text === '') return;
+
+await navigator.clipboard.writeText(text);
+
+const btn =
+document.getElementById('copyBtn');
+
+const oldText = btn.innerHTML;
+
+btn.innerHTML = '✅ Dicopy';
+
+setTimeout(()=>{
+btn.innerHTML = oldText;
+},2000);
+
+showToast('📋 Berhasil dicopy');
+}
+
+function clearAll(){
+
+document.getElementById('userid').value='';
+document.getElementById('txid').value='';
+document.getElementById('hasil').textContent='';
+document.getElementById('counter').textContent='Total Data : 0';
+
+showToast('🗑 Data dihapus');
+}
+
+function showToast(message){
+
+const toast = document.createElement('div');
+
+toast.className='toast';
+toast.innerHTML=message;
+
+document.body.appendChild(toast);
+
+setTimeout(()=>{
+toast.remove();
+},2000);
+}
+
+document.getElementById('bgUpload')
+.addEventListener('change',function(e){
+
+const file = e.target.files[0];
+
+if(!file) return;
+
+const reader = new FileReader();
+
+reader.onload = function(event){
+
+document.body.style.background =
+`url(${event.target.result}) center center/cover no-repeat fixed`;
+
+showToast('📷 Background diganti');
+};
+
+reader.readAsDataURL(file);
+});
+
 </script>
+
 </body>
 </html>
